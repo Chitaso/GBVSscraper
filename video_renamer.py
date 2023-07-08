@@ -1,7 +1,9 @@
 import os
 
 mappings = {
-    "_Prof Nekotech": "Prof Nekotech"
+    "_Prof Nekotech": "Prof Nekotech",
+    "SEG overraled": "SF6 Overrated",
+    "_ SF⑥ overraled": "SF6 Overrated"
 }
 
 path = os.path.abspath(f"{__file__}/../videos")

@@ -11,13 +11,19 @@ ev_cl = obs.EventClient()
 replay_data = {}
 
 
+def sanitize_file_name(file_name):
+    # Remove characters that are not allowed in Windows file names
+    sanitized_name = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '', file_name)
+    return sanitized_name
+
+
 def get_new_path(ext="mp4"):
     global replay_data
     if not replay_data:
         raise RuntimeError("Replay data is empty")
 
     path = os.path.abspath(
-        f"{__file__}/../videos/{replay_data['replay_number']}--{re.sub(r'--+', r'-', replay_data['player1']['name'])}--{replay_data['player1']['character']}--{re.sub(r'--+', r'-', replay_data['player2']['name'])}--{replay_data['player2']['character']}.{ext}")
+        f"{__file__}/../videos/{replay_data['replay_number']}--{sanitize_file_name(re.sub(r'--+', r'-', replay_data['player1']['name']))}--{replay_data['player1']['character']}--{sanitize_file_name(re.sub(r'--+', r'-', replay_data['player2']['name']))}--{replay_data['player2']['character']}.{ext}")
     replay_data = {}
 
     return path
@@ -27,6 +33,7 @@ def on_record_state_changed(data):
     if data.output_state != "OBS_WEBSOCKET_OUTPUT_STOPPED":
         return
 
+    # Look at os.replace
     os.rename(data.output_path, get_new_path(data.output_path.split(".")[-1]))
 
 
@@ -50,9 +57,13 @@ def hide_guide_overlay(p):
     return np.array_equal(p[984:1012, 1260:1286], images["hide_guide"])
 
 
-replays_to_record = 3
+replays_to_record = 62
 
-for last_replay_num in range(1, replays_to_record + 1):
+for last_replay_num in range(29, replays_to_record + 1):
+    while replay_data:
+        print("Waiting for callback")
+        time.sleep(0.5)
+
     print(f"Saving Replay {last_replay_num}")
 
     # Putting the replay on the top
@@ -75,6 +86,8 @@ for last_replay_num in range(1, replays_to_record + 1):
         else:
             break
 
+        time.sleep(0.25)
+
     # Grabbing the data
     replay_data = get_replay_data(background_screenshot(hwnd))
 
@@ -84,9 +97,10 @@ for last_replay_num in range(1, replays_to_record + 1):
         temp1 = background_screenshot(hwnd)
         temp = get_replay_number(temp1)
 
+        # TODO - fix caggy v caggy for first one
         if temp is None:
             send_key(hwnd, last_direction)
-        elif last_replay_num == 1 and get_fighter_characters(temp1)[0] is None:
+        elif last_replay_num == 1 and (get_fighter_characters(temp1)[0] is None or get_fighter_characters(temp1)[1] is None):
             break
         elif temp < last_replay_num - 1:
             send_key(hwnd, "s")
@@ -128,7 +142,7 @@ for last_replay_num in range(1, replays_to_record + 1):
     while True:
         temp1 = background_screenshot(hwnd)
         temp = get_fighter_ranks(temp1)
-        if temp[0]:
+        if temp[0] and temp[1]:
             break
 
         if hide_guide_overlay(temp1):

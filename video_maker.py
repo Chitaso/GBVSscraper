@@ -10,9 +10,8 @@ import random
 os.makedirs(os.path.abspath(f"{__file__}/../final"), exist_ok=True)
 
 
-def gen_uuid():
-    # return "".join(random.choice("abcdefghijklmnopqrstuvwxyz1234567890") for _ in range(20))
-    return "a"
+def gen_uuid(length=20):
+    return "".join(random.choice("abcdefghijklmnopqrstuvwxyz1234567890") for _ in range(length))
 
 
 def get_video_duration(file_path):
@@ -78,7 +77,7 @@ def create_video(file_path):
         f.write(f"\nfile {data['files'][-1][0].replace('trimmed_videos', 'ending_anim')}")
 
     final_path = os.path.abspath(
-        f"{__file__}/../final/[GBVS] Granblue Fantasy Versus Match {data['player1']['name']} ({data['player1']['character']}) vs {data['player2']['name']} ({data['player2']['character']}).mp4")
+        f"{__file__}/../final/[GBVS] Granblue Fantasy Versus Ranked Match {data['player1']['name']} ({data['player1']['character']}) vs {data['player2']['name']} ({data['player2']['character']})-{gen_uuid(5)}.mp4")
 
     subprocess.call(f'ffmpeg -f concat -safe 0 -i \"{concat_path}\" -c copy \"{final_path}\"')
 

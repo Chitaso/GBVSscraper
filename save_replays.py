@@ -45,10 +45,14 @@ def save_replay():
         send_key(hwnd, "w")
         time.sleep(0.25)
 
+    change_directions = 0
+
     last_direction = "w"
     while True:
         temp1 = background_screenshot(hwnd)
         temp = get_replay_number(temp1)
+
+        print(temp)
 
         if temp is None:
             send_key(hwnd, last_direction)
@@ -62,6 +66,8 @@ def save_replay():
             last_direction = "w"
         else:
             break
+
+        time.sleep(0.5)
 
     flag = False
     while True:
@@ -117,16 +123,18 @@ def save_replay():
         else:
             break
 
+    return True
+
 
 def next_replay():
     send_key(hwnd, "s")
 
 
-num_to_save = 50
+num_to_save = 10
 while num_to_save > 0:
+    print(f"Replays left: {num_to_save}")
     if should_save_replay():
-        num_to_save -= 1
-        save_replay()
+        num_to_save -= save_replay()
     else:
         next_replay()
     time.sleep(0.5)

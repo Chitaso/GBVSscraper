@@ -93,7 +93,7 @@ def get_video_bounds(file_path):
 
         if final_anim_flag1:
             if is_frame_black(img):
-                final_anim_frame = fno - 300
+                final_anim_frame = fno - 265
                 break
 
         success, img = cap.read()
@@ -115,11 +115,15 @@ def trim_video(file_path):
         start_time = round(bounds[j] / frame_rate, 5)
         end_time = round(bounds[j + 1] / frame_rate, 5)
 
-        ffmpeg.input(file_path, ss=start_time, to=end_time).output(output_path).run(overwrite_output=True)
+        kwargs = {}
+        if j == 1:
+            kwargs["filter_complex"] = "[0:a]volume=enable='lt(t,0.25)':volume=0"
+
+        ffmpeg.input(file_path, ss=start_time, to=end_time, **kwargs).output(output_path).run(overwrite_output=True)
 
 
-path = os.path.abspath(f"{__file__}/../videos")
-for i in os.listdir(path):
-    trim_video(f"{path}/{i}")
+# path = os.path.abspath(f"{__file__}/../videos")
+# for i in os.listdir(path):
+#     trim_video(f"{path}/{i}")
 
-# trim_video(os.path.abspath(f"{__file__}/../videos/4--Coinflip--Zooey--DotMp4--Yuel.mp4"))
+trim_video(os.path.abspath(f"{__file__}/../videos/1--SEG overraled--Cagliostro--Inno--Percival.mp4"))

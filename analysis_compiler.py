@@ -1,8 +1,13 @@
 import os
 import json
+import random
 from collections import defaultdict
 
 os.makedirs(os.path.abspath(f"{__file__}/../compilation"), exist_ok=True)
+
+
+def gen_uuid(length=20):
+    return "".join(random.choice("abcdefghijklmnopqrstuvwxyz1234567890") for _ in range(length))
 
 
 class defaultkeydict(dict):
@@ -71,8 +76,13 @@ for i, j in videos.items():
             data["files"].append([temp["file_path"], temp["frame_count"]])
             data["wins"].append([j + (i == temp["winner"]) for i, j in enumerate(data["wins"][-1], 1)])
 
-    # In seconds
-    data["runtime"] = sum(map(lambda x: x[1], data["files"])) / 60
+        if data["wins"][-1][0] == 2 or data["wins"][-1][1] == 2:
+            data["runtime"] = sum(map(lambda x: x[1], data["files"])) / 60
+            with open(f"{path1}/{i}-{gen_uuid(5)}.json", "w") as f:
+                json.dump(data, f)
 
+            data["wins"] = [[0, 0]]
+
+    data["runtime"] = sum(map(lambda x: x[1], data["files"])) / 60
     with open(f"{path1}/{i}.json", "w") as f:
         json.dump(data, f)
