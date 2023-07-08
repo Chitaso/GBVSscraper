@@ -36,13 +36,13 @@ os.makedirs(os.path.abspath(f"{__file__}/../analysis"), exist_ok=True)
 def get_wins(img):
     wins = [0, 0]
 
-    for i, [j, k] in enumerate([[229, 31], [254, 31]], 1):
+    for a, [j, k] in enumerate([[229, 31], [254, 31]], 1):
         if (img[k][j] > 30).all():
-            wins[0] = i
+            wins[0] = a
 
-    for i, [j, k] in enumerate([[1693, 31], [1666, 31]], 1):
+    for a, [j, k] in enumerate([[1693, 31], [1666, 31]], 1):
         if (img[k][j] > 30).all():
-            wins[1] = i
+            wins[1] = a
 
     return wins  # Player 1 Wins, Player 2 Wins
 
