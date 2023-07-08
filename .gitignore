@@ -1,0 +1,6 @@
+temp/
+.idea/
+venv/
+config.toml
+videos
+final
