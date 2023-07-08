@@ -34,8 +34,13 @@ def get_video_bounds(file_path):
     end_frame = -1
     end_frame_flag = False
 
-    # Coordinates where a win is awarded
-    validate_end = [[254, 31], [1666, 31]]
+    validate_end = [
+        [[436, 545], [92, 198, 247]],
+        [[973, 618], [15, 33, 55]],
+        [[1113, 539], [150, 255, 253]],
+        [[1280, 529], [137, 255, 250]],
+        [[1463, 472], [92, 184, 247]],
+    ]
 
     final_anim_frame = -1
     final_anim_flag = False
@@ -64,16 +69,17 @@ def get_video_bounds(file_path):
 
         if start_frame != -1 and not end_frame_flag:
             flag = False
-            for a in validate_end:
-                if (img[a[1]][a[0]] > 30).all():
-                    flag = True
+            for i, j in validate_end:
+                p = img[i[1]][i[0]]
+                for k in range(3):
+                    if abs(p[k] - j[k]) > 25:
+                        flag = True
+                        break
+
+                if flag:
                     break
-
-            if flag:
-                from PIL import Image
-                Image.fromarray(img).show()
-                input()
-
+            else:
+                print(fno)
                 end_frame_flag = True
 
         if end_frame_flag and not final_anim_flag:
@@ -116,8 +122,8 @@ def trim_video(file_path):
         ffmpeg.input(file_path, ss=start_time, to=end_time, **kwargs).output(output_path).run(overwrite_output=True)
 
 
-path = os.path.abspath(f"{__file__}/../videos")
+# path = os.path.abspath(f"{__file__}/../videos")
 # for i in os.listdir(path):
 #     trim_video(f"{path}/{i}")
 
-trim_video(f"{path}/1--SF6 Overrated--Cagliostro--Inno--Percival.mp4")
+trim_video(os.path.abspath(f"{__file__}/../videos/1--SEG overraled--Cagliostro--Inno--Percival.mp4"))
