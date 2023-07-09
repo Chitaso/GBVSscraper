@@ -22,6 +22,13 @@ def get_video_bounds(file_path):
     success, img = cap.read()
     fno = 0
 
+    thumbnail_frame = -1
+    validate_thumbnail = [[[732, 377], [187, 255, 253]], [[864, 629], [60, 159, 220]], [[980, 480], [20, 51, 80]], [[1184, 504], [143, 255, 252]], [[1056, 494], [114, 254, 254]],
+                          [[1121, 652], [11, 48, 75]], [[1145, 770], [25, 65, 101]], [[1006, 764], [13, 36, 58]]]
+    for a in validate_thumbnail:
+        for b, c in enumerate(a):
+            a[b][1] = np.array(c[1])
+
     start_frame = -1
     last_black_frame = -1
 
@@ -58,7 +65,16 @@ def get_video_bounds(file_path):
     final_anim_frame = -1
 
     while success:
-        if start_frame == -1:
+        if thumbnail_frame == -1:
+            for [pix, color] in validate_thumbnail:
+                p = img[pix[1]][pix[0]]
+                if not (np.abs(color - p) < 10).all():
+                    break
+            else:
+                print(fno)
+                thumbnail_frame = fno + 35
+
+        if thumbnail_frame != -1 and start_frame == -1:
             if is_frame_black(img):
                 last_black_frame = fno
 
@@ -105,10 +121,10 @@ def get_video_bounds(file_path):
         success, img = cap.read()
         fno += 1
 
-    print(start_frame, end_frame, final_anim_frame)
+    print(start_frame, end_frame, final_anim_frame, thumbnail_frame)
 
     if start_frame >= 0 and end_frame >= 0:
-        return start_frame, end_frame, final_anim_frame
+        return start_frame, end_frame, final_anim_frame, thumbnail_frame
 
 
 def trim_video(file_path, bounds):
@@ -127,9 +143,9 @@ def trim_video(file_path, bounds):
         ffmpeg.input(file_path, ss=start_time, to=end_time, **kwargs).output(output_path).run(overwrite_output=True)
 
 
-def extract_thumbnail(file_path, start_frame):
+def extract_thumbnail(file_path, thumbnail_frame):
     cap = cv2.VideoCapture(file_path)
-    cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame - 460)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, thumbnail_frame)
     _, img = cap.read()
 
     file_path = file_path.replace("videos", "thumbnails_temp")
@@ -140,14 +156,16 @@ def extract_thumbnail(file_path, start_frame):
 
 def run(file_path):
     bounds = get_video_bounds(file_path)
-    trim_video(file_path, bounds)
-    extract_thumbnail(file_path, bounds[0])
+    # trim_video(file_path, bounds)
+    extract_thumbnail(file_path, bounds[3])
 
 
 path = os.path.abspath(f"{__file__}/../videos")
 blacklist = os.listdir(f"{__file__}/../trimmed_videos")
 
-for i in os.listdir(path):
-    if i not in blacklist or True:
-        print(f"Trimming video: {i}")
-        run(f"{path}/{i}")
+# for i in os.listdir(path):
+#     if i not in blacklist or True:
+#         print(f"Trimming video: {i}")
+#         run(f"{path}/{i}")
+
+run(f"{path}/1--SF6 Overrated--Cagliostro--Inno--Percival.mp4")
