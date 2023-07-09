@@ -82,7 +82,11 @@ for i, j in videos.items():
                 json.dump(data, f)
 
             data["wins"] = [[0, 0]]
+            data["files"] = []
 
-    data["runtime"] = sum(map(lambda x: x[1], data["files"])) / 60
-    with open(f"{path1}/{i}.json", "w") as f:
-        json.dump(data, f)
+    if data["files"]:
+        print(i)
+
+        data["runtime"] = sum(map(lambda x: x[1], data["files"])) / 60
+        with open(f"{path1}/{i}.json", "w") as f:
+            json.dump(data, f)

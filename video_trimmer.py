@@ -5,11 +5,16 @@ import numpy as np
 
 os.makedirs(os.path.abspath(f"{__file__}/../trimmed_videos"), exist_ok=True)
 os.makedirs(os.path.abspath(f"{__file__}/../ending_anim"), exist_ok=True)
+os.makedirs(os.path.abspath(f"{__file__}/../thumbnails_temp"), exist_ok=True)
 
 
 def is_frame_black(arr):
     return not (arr > 10).any()
 
+
+# TODO:
+#   - 12, 13 Ending Anim ->
+#   - 20 Ending Anim
 
 def get_video_bounds(file_path):
     cap = cv2.VideoCapture(file_path)
@@ -51,8 +56,6 @@ def get_video_bounds(file_path):
             a[b][1] = np.array(c[1])
 
     final_anim_frame = -1
-    final_anim_flag = False
-    final_anim_flag1 = False
 
     while success:
         if start_frame == -1:
@@ -94,35 +97,6 @@ def get_video_bounds(file_path):
                     end_frame_flag = True
                     end_frame = black_frame_end - 1
 
-            # flag = False
-            # for i, j in validate_end:
-            #     p = img[i[1]][i[0]]
-            #     for k in range(3):
-            #         if abs(p[k] - j[k]) > 25:
-            #             flag = True
-            #             break
-            #
-            #     if flag:
-            #         break
-            # else:
-            #     print(fno)
-            #     end_frame_flag = True
-
-        # if end_frame_flag and not final_anim_flag:
-        #     if is_frame_black(img):
-        #         end_frame = fno - 1
-        #         final_anim_flag = True
-        #
-        # if final_anim_flag and not final_anim_flag1:
-        #     if not is_frame_black(img):
-        #         final_anim_flag1 = True
-        #
-        # if final_anim_flag1:
-        #     if is_frame_black(img):
-        #         final_anim_frame = fno - 265
-        #         break
-        #
-
         if end_frame_flag:
             if is_frame_black(img):
                 final_anim_frame = fno - 268
@@ -137,8 +111,7 @@ def get_video_bounds(file_path):
         return start_frame, end_frame, final_anim_frame
 
 
-def trim_video(file_path):
-    bounds = get_video_bounds(file_path)
+def trim_video(file_path, bounds):
     frame_rate = 60
 
     for j, k in enumerate(["trimmed_videos", "ending_anim"]):
@@ -154,12 +127,27 @@ def trim_video(file_path):
         ffmpeg.input(file_path, ss=start_time, to=end_time, **kwargs).output(output_path).run(overwrite_output=True)
 
 
+def extract_thumbnail(file_path, start_frame):
+    cap = cv2.VideoCapture(file_path)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame - 460)
+    _, img = cap.read()
+
+    file_path = file_path.replace("videos", "thumbnails_temp")
+    file_path = file_path[:-4] + ".png"
+
+    cv2.imwrite(file_path, img)
+
+
+def run(file_path):
+    bounds = get_video_bounds(file_path)
+    trim_video(file_path, bounds)
+    extract_thumbnail(file_path, bounds[0])
+
+
 path = os.path.abspath(f"{__file__}/../videos")
 blacklist = os.listdir(f"{__file__}/../trimmed_videos")
 
 for i in os.listdir(path):
-    if i not in blacklist:
+    if i not in blacklist or True:
         print(f"Trimming video: {i}")
-        trim_video(f"{path}/{i}")
-
-# trim_video(os.path.abspath(f"{__file__}/../videos/12--jnh--Soriz--Prometheus--Avatar Belial.mp4"))
+        run(f"{path}/{i}")

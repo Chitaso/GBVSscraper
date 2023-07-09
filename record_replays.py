@@ -23,7 +23,7 @@ def get_new_path(ext="mp4"):
         raise RuntimeError("Replay data is empty")
 
     path = os.path.abspath(
-        f"{__file__}/../videos/{replay_data['replay_number']}--{sanitize_file_name(re.sub(r'--+', r'-', replay_data['player1']['name']))}--{replay_data['player1']['character']}--{sanitize_file_name(re.sub(r'--+', r'-', replay_data['player2']['name']))}--{replay_data['player2']['character']}.{ext}")
+        f"{__file__}/../videos/{replay_data['replay_number']:02d}--{sanitize_file_name(re.sub(r'--+', r'-', replay_data['player1']['name']))}--{replay_data['player1']['character']}--{sanitize_file_name(re.sub(r'--+', r'-', replay_data['player2']['name']))}--{replay_data['player2']['character']}.{ext}")
     replay_data = {}
 
     return path

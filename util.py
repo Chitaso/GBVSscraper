@@ -217,7 +217,6 @@ if __name__ == "__main__":
     hwnd = find_window("GRANBLUE FANTASY Versus")
     pixels = background_screenshot(hwnd)
 
-
     # get_fighter_characters(pixels)
 
     # print(get_replay_data(pixels))

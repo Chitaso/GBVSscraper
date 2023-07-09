@@ -9,6 +9,7 @@ paths = [
     f"{base_path}/analysis",
     f"{base_path}/trimmed_videos",
     f"{base_path}/ending_anim",
+    f"{base_path}/thumbnails_temp",
 ]
 
 for i in paths:
