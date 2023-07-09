@@ -45,11 +45,12 @@ def create_video(file_path):
     with open(file_path) as f:
         data = json.load(f)
 
+    if data["runtime"] < 270:
+        print(f"Video Length Insufficient for video {file_path}")
+        return
+
     global video_count
     video_count += 1
-
-    # if data["runtime"] < 300:
-    #     print(f"Video Length Insufficient for video {file_path}")
 
     uuid = gen_uuid()
     temp_path = os.path.abspath(f"{__file__}/../final/temp/{uuid}")
@@ -111,6 +112,9 @@ def create_video(file_path):
 def create_thumbnail(file_path):
     with open(file_path) as f:
         data = json.load(f)
+
+    if data["runtime"] < 270:
+        return
 
     thumbnail_path = data["files"][0][0]
     thumbnail_path = thumbnail_path[:-4].replace("trimmed_videos", "thumbnails_temp") + ".png"
