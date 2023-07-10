@@ -156,16 +156,18 @@ def extract_thumbnail(file_path, thumbnail_frame):
 
 def run(file_path):
     bounds = get_video_bounds(file_path)
-    # trim_video(file_path, bounds)
+    if any(map(lambda x: x == -1, bounds)):
+        print(f"Error parsing video {file_path}")
+        return
+
+    trim_video(file_path, bounds)
     extract_thumbnail(file_path, bounds[3])
 
 
 path = os.path.abspath(f"{__file__}/../videos")
 blacklist = os.listdir(f"{__file__}/../trimmed_videos")
 
-# for i in os.listdir(path):
-#     if i not in blacklist or True:
-#         print(f"Trimming video: {i}")
-#         run(f"{path}/{i}")
-
-run(f"{path}/1--SF6 Overrated--Cagliostro--Inno--Percival.mp4")
+for i in os.listdir(path):
+    if i not in blacklist or True:
+        print(f"Trimming video: {i}")
+        run(f"{path}/{i}")

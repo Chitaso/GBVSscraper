@@ -51,6 +51,8 @@ for i in os.listdir(path):
 
 path1 = os.path.abspath(f"{__file__}/../compilation")
 for i, j in videos.items():
+    counter = 1
+
     data = {
         "player1": {
             "name": None,
@@ -76,17 +78,20 @@ for i, j in videos.items():
             data["files"].append([temp["file_path"], temp["frame_count"]])
             data["wins"].append([j + (i == temp["winner"]) for i, j in enumerate(data["wins"][-1], 1)])
 
-        if data["wins"][-1][0] == 2 or data["wins"][-1][1] == 2:
+        # if data["wins"][-1][0] == 2 or data["wins"][-1][1] == 2:
+        # if len(data["files"]) > 7:
+        if sum(map(lambda x: x[1], data["files"])) / 60 > 600:
             data["runtime"] = sum(map(lambda x: x[1], data["files"])) / 60
-            with open(f"{path1}/{i}-{gen_uuid(5)}.json", "w") as f:
+            with open(f"{path1}/{i}-{counter}.json", "w") as f:
                 json.dump(data, f)
 
             data["wins"] = [[0, 0]]
             data["files"] = []
+            counter += 1
 
     if data["files"]:
-        print(i)
+        # print(i)
 
         data["runtime"] = sum(map(lambda x: x[1], data["files"])) / 60
-        with open(f"{path1}/{i}.json", "w") as f:
+        with open(f"{path1}/{i}-{counter}.json", "w") as f:
             json.dump(data, f)

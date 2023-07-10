@@ -4,6 +4,7 @@ from PIL import Image
 import pytesseract
 import re
 import os
+import random
 
 chars = {}
 
@@ -15,6 +16,10 @@ def load_chars():
 
 
 load_chars()
+
+
+def gen_uuid(length=20):
+    return "".join(random.choice("abcdefghijklmnopqrstuvwxyz1234567890") for _ in range(length))
 
 
 def find_window(window_name):
@@ -61,8 +66,8 @@ def get_replay_number(p):
     replay_number = p[270:301, 250:301]
     text = pytesseract.image_to_string(replay_number).strip().replace("O", "0")
 
-    if re.match(r"\d{3}", text):
-        return int(text)
+    if a := re.match(r"\d{3}", text):
+        return int(a.group())
     return None
 
 
@@ -81,15 +86,15 @@ LANGUAGES = ["jpn", "eng", "chi_sim"]
 
 def read_langs(p):
     for i in LANGUAGES:
-        text = pytesseract.image_to_string(p, lang=i, config=r"-c preserve_interword_spaces=1 -c paragraph_text_based=false").strip().strip("ー").strip()
+        text = pytesseract.image_to_string(p, lang=i, config=r"-c preserve_interword_spaces=1").strip()
         if text:
             return text
     return None
 
 
 def get_fighter_names(p):
-    name1 = p[305:343, 500:705]
-    name2 = p[305:343, 1212:1437]
+    name1 = p[305:339, 500:705]
+    name2 = p[305:339, 1212:1437]
 
     text1 = read_langs(name1)
     text2 = read_langs(name2)
@@ -103,12 +108,12 @@ def get_fighter_ranks(p):
             [[16, 250, 255], [[553, 357], [1247, 357]]]
         ],
         #  Meh, it's fine
-        "S+/S++": [
-            [[49, 50, 55], [[661, 368], [1250, 368]]]
-        ],
-        "S": [
-            [[48, 51, 56], [[663, 354], [1253, 354]]]
-        ],
+        # "S+/S++": [
+        #     [[49, 50, 55], [[661, 368], [1250, 368]]]
+        # ],
+        # "S": [
+        #     [[48, 51, 56], [[663, 354], [1253, 354]]]
+        # ],
         # "A": [  # Figure out if we want to keep A's
         #     [[26, 43, 67], [[662, 356], [1254, 356]]]
         # ]
@@ -184,8 +189,8 @@ def get_replay_data(p):
     }
 
     a, b = get_fighter_names(p)
-    data["player1"]["name"] = a
-    data["player2"]["name"] = b
+    data["player1"]["name"] = a or f"player{gen_uuid(10)}"
+    data["player2"]["name"] = b or f"player{gen_uuid(10)}"
 
     a, b = get_fighter_ranks(p)
     data["player1"]["rank"] = a
@@ -219,7 +224,7 @@ if __name__ == "__main__":
 
     # get_fighter_characters(pixels)
 
-    # print(get_replay_data(pixels))
+    print(get_replay_data(pixels))
 
     # print(get_fighter_ranks(pixels))
 

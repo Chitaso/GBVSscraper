@@ -1,4 +1,5 @@
 import time
+from collections import defaultdict
 from util import *
 
 hwnd = find_window("GRANBLUE FANTASY Versus")
@@ -10,6 +11,25 @@ images = {
     "replay_saved_screen": np.array(Image.open(os.path.abspath(f"{__name__}/../images/replay_saved_screen.png")))
 }
 
+game_count = defaultdict(lambda: 0)
+
+
+def hash_game(game_data):
+    p1 = game_data["player1"]
+    p2 = game_data["player2"]
+
+    temp = f"{p1['rank']}-{p1['character']}"
+    temp1 = f"{p2['rank']}-{p2['character']}"
+
+    if not re.fullmatch(r"player[a-z0-9]{10}", p1['name']):
+        temp = f"{p1['name']}-{temp}"
+
+    if not re.fullmatch(r"player[a-z0-9]{10}", p2['name']):
+        temp1 = f"{p1['name']}-{temp}"
+
+    return f"{temp}-{temp1}"
+
+
 last_replay_num = 0
 
 
@@ -20,9 +40,14 @@ def should_save_replay():
     temp = get_replay_data(pixels)
     temp1 = last_replay_num
 
+    game_hash = hash_game(temp)
+    c = game_count[game_hash]
     print(temp)
+    print(f"{game_hash}: {c}")
 
-    return validate_replay_data(temp) and ((last_replay_num := max(last_replay_num, temp["replay_number"])) > temp1)
+    if c < 7:
+        c += 1
+        return validate_replay_data(temp) and ((last_replay_num := max(last_replay_num, temp["replay_number"])) > temp1)
 
 
 def replay_menu_selection():
@@ -45,10 +70,10 @@ def save_replay():
         send_key(hwnd, "w")
         time.sleep(0.25)
 
-    change_directions = 0
+    switches_left = 3
 
     last_direction = "w"
-    while True:
+    while switches_left > 0:
         temp1 = background_screenshot(hwnd)
         temp = get_replay_number(temp1)
 
@@ -59,15 +84,22 @@ def save_replay():
         elif last_replay_num == 1 and get_fighter_characters(temp1)[0] is None:
             break
         elif temp < last_replay_num - 1:
+            switches_left -= last_direction != "s"
+
             send_key(hwnd, "s")
             last_direction = "s"
         elif temp > last_replay_num - 1:
+            switches_left -= last_direction != "w"
+
             send_key(hwnd, "w")
             last_direction = "w"
         else:
             break
 
         time.sleep(0.5)
+
+    if switches_left == 0:
+        return False
 
     flag = False
     while True:
@@ -130,7 +162,7 @@ def next_replay():
     send_key(hwnd, "s")
 
 
-num_to_save = 10
+num_to_save = 11
 while num_to_save > 0:
     print(f"Replays left: {num_to_save}")
     if should_save_replay():

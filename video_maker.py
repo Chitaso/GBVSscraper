@@ -1,18 +1,13 @@
 import shutil
 import subprocess
-import numpy as np
 import cv2
 import ffmpeg
-import os
 import json
-import random
-from PIL import ImageFont, ImageDraw, Image
+from PIL import ImageFont, ImageDraw
+from util import *
 
 os.makedirs(os.path.abspath(f"{__file__}/../final"), exist_ok=True)
-
-
-def gen_uuid(length=20):
-    return "".join(random.choice("abcdefghijklmnopqrstuvwxyz1234567890") for _ in range(length))
+MATCH_TYPE = "Room"
 
 
 def get_video_duration(file_path):
@@ -80,6 +75,7 @@ def create_video(file_path):
 
     clips = []
     for i, j in enumerate(data["files"]):
+        print(f"Creating clip: {i}")
         clip_path = f"{temp_path}/videos/clip{i}.mp4"
         clips.append(clip_path)
 
@@ -96,10 +92,12 @@ def create_video(file_path):
 
     with open(concat_path, "w", encoding="utf-8") as f:
         f.write("\n".join(map(lambda x: f"file {temp_path}/videos/{x}".replace("\\", "/"), os.listdir(f"{temp_path}/videos"))))
-        f.write(f"\nfile {data['files'][-1][0].replace('trimmed_videos', 'ending_anim')}")
+
+        ending_path = data['files'][-1][0].replace('trimmed_videos', 'ending_anim').replace("\\", "/").replace(" ", "_")
+        f.write(f"\nfile {ending_path}")
 
     final_path = os.path.abspath(
-        f"{__file__}/../final/[GBVS] Granblue Fantasy Versus Ranked Match {data['player1']['name']} ({data['player1']['character']}) vs {data['player2']['name']} ({data['player2']['character']})-{video_count}.mp4")
+        f"{__file__}/../final/[GBVS] Granblue Fantasy Versus {MATCH_TYPE} Match {data['player1']['name']} ({data['player1']['character']}) vs {data['player2']['name']} ({data['player2']['character']})-{video_count}.mp4")
 
     subprocess.call(f'ffmpeg -f concat -safe 0 -i \"{concat_path}\" -c copy \"{final_path}\"')
 
@@ -119,7 +117,9 @@ def create_thumbnail(file_path):
     thumbnail_path = data["files"][0][0]
     thumbnail_path = thumbnail_path[:-4].replace("trimmed_videos", "thumbnails_temp") + ".png"
 
-    thumbnail = cv2.imread(thumbnail_path, cv2.IMREAD_UNCHANGED)
+    with open(thumbnail_path, "rb") as f:
+        arr = np.asarray(bytearray(f.read()), dtype=np.uint8)
+    thumbnail = cv2.imdecode(arr, cv2.IMREAD_UNCHANGED)
     thumbnail = cv2.resize(thumbnail, (1280, 720), interpolation=cv2.INTER_AREA)
 
     overlay = cv2.imread(f"{__file__}/../images/thumbnail_overlay.png", cv2.IMREAD_UNCHANGED)
@@ -143,7 +143,7 @@ def create_thumbnail(file_path):
     draw.text((974 - text_width2 // 2, 610 - text_height2 // 2), text2, font=font, fill=(255, 255, 255, 255))
 
     final_path = os.path.abspath(
-        f"{__file__}/../final/[GBVS] Granblue Fantasy Versus Ranked Match {data['player1']['name']} ({data['player1']['character']}) vs {data['player2']['name']} ({data['player2']['character']})-{video_count}.png")
+        f"{__file__}/../final/[GBVS] Granblue Fantasy Versus {MATCH_TYPE} Match {data['player1']['name']} ({data['player1']['character']}) vs {data['player2']['name']} ({data['player2']['character']})-{video_count}.png")
     cv2.imwrite(final_path, np.array(img_pil))
 
 
@@ -154,4 +154,7 @@ def run(file_path):
 
 path = os.path.abspath(f"{__file__}/../compilation")
 for i in os.listdir(path):
+    print(f"Compiling video {i}")
     run(f"{path}/{i}")
+
+# create_thumbnail(f"{__file__}/../compilation/日本翼--Lancelot--son-o--Metera-1.json")

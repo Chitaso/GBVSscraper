@@ -57,9 +57,9 @@ def hide_guide_overlay(p):
     return np.array_equal(p[984:1012, 1260:1286], images["hide_guide"])
 
 
-replays_to_record = 62
+replays_to_record = 63
 
-for last_replay_num in range(29, replays_to_record + 1):
+for last_replay_num in range(1, replays_to_record + 1):
     while replay_data:
         print("Waiting for callback")
         time.sleep(0.5)
