@@ -78,9 +78,9 @@ for i, j in videos.items():
             data["files"].append([temp["file_path"], temp["frame_count"]])
             data["wins"].append([j + (i == temp["winner"]) for i, j in enumerate(data["wins"][-1], 1)])
 
-        # if data["wins"][-1][0] == 2 or data["wins"][-1][1] == 2:
+        if data["wins"][-1][0] == 2 or data["wins"][-1][1] == 2:
         # if len(data["files"]) > 7:
-        if sum(map(lambda x: x[1], data["files"])) / 60 > 600:
+        # if sum(map(lambda x: x[1], data["files"])) / 60 > 600:
             data["runtime"] = sum(map(lambda x: x[1], data["files"])) / 60
             with open(f"{path1}/{i}-{counter}.json", "w") as f:
                 json.dump(data, f)

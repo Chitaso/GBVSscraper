@@ -2,10 +2,12 @@ This was made for my personal use so a lot of things are hardcoded in & assumed 
 
 ---
 
+- Run `clean.py` to clean out the replays
 - Run `save_replays.py` to save the replays (probably optional?)
 - Run `record_replays.py` to record the replays (OBS must be opened)
 - Run `video_renamer.py` to fix the names 
 - Run `video_trimmer.py` to trim the videos
+- Run `ending_anim_fixer.py` to fix the ending animations
 - Run `video_analyzer.py` to find out who wins
 - Run `analysis_compiler.py` to compile the videos
 - Run `video_maker.py` to create the final video

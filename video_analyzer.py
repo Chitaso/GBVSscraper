@@ -1,6 +1,7 @@
 import os
 import cv2
 import json
+from util import *
 
 os.makedirs(os.path.abspath(f"{__file__}/../analysis"), exist_ok=True)
 
@@ -79,12 +80,12 @@ def analyze_video(file_path, file_name):
             "winner": winner,
             "frame_count": frame_count,
             "player1": {
-                "name": a,
-                "character": b
+                "name": decode_name(a),
+                "character": b.replace("_", " ")
             },
             "player2": {
-                "name": c,
-                "character": d
+                "name": decode_name(c),
+                "character": d.replace("_", " ")
             }
         }, f)
 

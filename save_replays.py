@@ -162,7 +162,7 @@ def next_replay():
     send_key(hwnd, "s")
 
 
-num_to_save = 11
+num_to_save = 49
 while num_to_save > 0:
     print(f"Replays left: {num_to_save}")
     if should_save_replay():

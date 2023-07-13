@@ -1,34 +1,15 @@
 import os
 
 mappings = {
-    "pariahCarevCANI": "pariahCarey",
+    "速抱抱凱示希号": "请抱抱凯尔希吧",
+    "波藍鬼オ_老男人ver.": "波蓝鬼オu0020]老男人ver",
+    "夙同財云": "风间时云",
+    "囚囚囚囚に": "Percival",
     "Son-o": "son-o",
-    "player5mok9l1fhh": "日本翼",
-    "playernzjzr6vp35": "日本翼",
-    "player0a50vfq2uz": "日本翼",
-    "playeriqq3jek2wj": "日本翼",
-    "playerm1t7jbp5hl": "日本翼",
-    "playerrkwzhvi4mi": "日本翼",
-    "playerr4z81691jf": "日本翼",
-    "player3tpouj53ei": "日本翼",
-    "player81gn04ro7y": "日本翼",
-    "player2d69o2wfa2": "日本翼",
-    "playerb9m4vcra45": "日本翼",
-    "player6p4tselwmq": "日本翼",
-    "player0acpwxxz5i": "日本翼",
-    "player6alaq7sotv": "日本翼",
-    "playeruxsji7tsyt": "日本翼",
-    "player43kv006r2v": "日本翼",
-    "playeryzprc15ssi": "日本翼",
-    "playert3ru49utja": "日本翼",
-    "player34x25jqsti": "日本翼",
-    "playerackx48oene": "日本翼",
-    "playerxsvat5361i": "日本翼",
-    "nan(篆nan nanl": "nan",
-    "nan(ç¯†nan nanl": "nan",
+    "mizo_re": "mizo_re"
 }
 
-path = os.path.abspath(f"{__file__}/../ending_anim")
+path = os.path.abspath(f"{__file__}/../videos")
 for i in os.listdir(path):
     m, n = i.rsplit(".", 1)
     a, b, c, d, e = m.split("--")
@@ -40,4 +21,18 @@ for i in os.listdir(path):
         if d == j:
             d = k
 
-    os.rename(f"{path}/{i}", f"{path}/{'--'.join((a, b, c, d, e))}.{n}")
+    os.rename(f"{path}/{i}", f"{path}/{'--'.join((a, b, c, d, e)).replace(' ', '_')}.{n}")
+
+if os.path.exists(f"{__file__}/../thumbnails_temp"):
+    temp = {i.split("--")[0]: i[:-4] for i in os.listdir(path)}
+    path1 = os.path.abspath(f"{__file__}/../thumbnails_temp")
+    for i in os.listdir(path1):
+        os.rename(f"{path1}/{i}", f"{path1}/{temp[i.split('--')[0]]}.png")
+
+    path1 = os.path.abspath(f"{__file__}/../ending_anim")
+    for i in os.listdir(path1):
+        os.rename(f"{path1}/{i}", f"{path1}/{temp[i.split('--')[0]]}.mp4")
+
+    path1 = os.path.abspath(f"{__file__}/../trimmed_videos")
+    for i in os.listdir(path1):
+        os.rename(f"{path1}/{i}", f"{path1}/{temp[i.split('--')[0]]}.mp4")

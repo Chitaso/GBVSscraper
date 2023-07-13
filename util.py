@@ -9,6 +9,9 @@ import random
 chars = {}
 
 
+# offsets are multiples of 134
+
+
 def load_chars():
     for i in os.listdir(os.path.abspath(f"{__name__}/../characters")):
         # chars[i.split(".")[0]] = np.array(cv2.imread(os.path.abspath(f"{__name__}/../characters/{i}")))
@@ -62,8 +65,8 @@ def background_screenshot(hwnd):
     return p
 
 
-def get_replay_number(p):
-    replay_number = p[270:301, 250:301]
+def get_replay_number(p, nth_replay=0):
+    replay_number = p[270 + nth_replay * 134:301 + nth_replay * 134, 250:301]
     text = pytesseract.image_to_string(replay_number).strip().replace("O", "0")
 
     if a := re.match(r"\d{3}", text):
@@ -71,8 +74,8 @@ def get_replay_number(p):
     return None
 
 
-def get_date(p):
-    date = p[265:296, 1390:1581]
+def get_date(p, nth_replay=0):
+    date = p[265 + nth_replay * 134:296 + nth_replay * 134, 1390:1581]
 
     text = pytesseract.image_to_string(date).strip()
 
@@ -92,9 +95,9 @@ def read_langs(p):
     return None
 
 
-def get_fighter_names(p):
-    name1 = p[305:339, 500:705]
-    name2 = p[305:339, 1212:1437]
+def get_fighter_names(p, nth_replay=0):
+    name1 = p[305 + nth_replay * 134:339 + nth_replay * 134, 500:705]
+    name2 = p[305 + nth_replay * 134:339 + nth_replay * 134, 1212:1437]
 
     text1 = read_langs(name1)
     text2 = read_langs(name2)
@@ -102,20 +105,20 @@ def get_fighter_names(p):
     return text1, text2
 
 
-def get_fighter_ranks(p):
+def get_fighter_ranks(p, nth_replay=0):
     ranks = {
         "Master": [
-            [[16, 250, 255], [[553, 357], [1247, 357]]]
+            [[16, 250, 255], [[553, 357 + nth_replay * 134], [1247, 357 + nth_replay * 134]]]
         ],
         #  Meh, it's fine
         # "S+/S++": [
-        #     [[49, 50, 55], [[661, 368], [1250, 368]]]
+        #     [[49, 50, 55], [[661, 368 + nth_replay * 134], [1250, 368 + nth_replay * 134]]]
         # ],
         # "S": [
-        #     [[48, 51, 56], [[663, 354], [1253, 354]]]
+        #     [[48, 51, 56], [[663, 354 + nth_replay * 134], [1253, 354 + nth_replay * 134]]]
         # ],
         # "A": [  # Figure out if we want to keep A's
-        #     [[26, 43, 67], [[662, 356], [1254, 356]]]
+        #     [[26, 43, 67], [[662, 356 + nth_replay * 134], [1254, 356 + nth_replay * 134]]]
         # ]
     }
 
@@ -148,10 +151,14 @@ def get_fighter_ranks(p):
     return rank1, rank2
 
 
-def get_fighter_characters(p):
-    char1 = p[322:365, 724:850]
-    char2 = p[322:365, 1013:1139]
+def get_fighter_characters(p, nth_replay=0):
+    char1 = p[322 + nth_replay * 134:365 + nth_replay * 134, 724:850]
+    char2 = p[322 + nth_replay * 134:365 + nth_replay * 134, 1013:1139]
 
+    return _get_fighter_characters(char1, char2)
+
+
+def _get_fighter_characters(char1, char2):
     p1, p2 = None, None
 
     for a, b in chars.items():
@@ -173,7 +180,7 @@ def get_fighter_characters(p):
     return p1, p2
 
 
-def get_replay_data(p):
+def get_replay_data(p, nth_replay=0):
     data = {
         "replay_number": get_replay_number(p),
         "date": get_date(p),
@@ -188,15 +195,15 @@ def get_replay_data(p):
         }
     }
 
-    a, b = get_fighter_names(p)
+    a, b = get_fighter_names(p, nth_replay)
     data["player1"]["name"] = a or f"player{gen_uuid(10)}"
     data["player2"]["name"] = b or f"player{gen_uuid(10)}"
 
-    a, b = get_fighter_ranks(p)
+    a, b = get_fighter_ranks(p, nth_replay)
     data["player1"]["rank"] = a
     data["player2"]["rank"] = b
 
-    a, b = get_fighter_characters(p)
+    a, b = get_fighter_characters(p, nth_replay)
     data["player1"]["character"] = a
     data["player2"]["character"] = b
 
@@ -217,6 +224,33 @@ def send_key(hwnd, key):
     # win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) & ~win32con.WS_EX_TOPMOST)
 
 
+mappings = {
+    " ": "u0020"
+}
+
+demappings = {j: i for i, j in mappings.items()}
+
+
+def sanitize_file_name(file_name):
+    # Remove characters that are not allowed in Windows file names
+    sanitized_name = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '', file_name)
+    return sanitized_name
+
+
+def encode_name(name):
+    name = re.sub(r'--+', r'-', sanitize_file_name(name))
+
+    for i, j in mappings.items():
+        name = name.replace(i, j)
+    return name
+
+
+def decode_name(name):
+    for i, j in demappings.items():
+        name = name.replace(i, j)
+    return name
+
+
 # Testing Code
 if __name__ == "__main__":
     hwnd = find_window("GRANBLUE FANTASY Versus")
@@ -224,7 +258,7 @@ if __name__ == "__main__":
 
     # get_fighter_characters(pixels)
 
-    print(get_replay_data(pixels))
+    # print(get_replay_data(pixels))
 
     # print(get_fighter_ranks(pixels))
 

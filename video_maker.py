@@ -7,7 +7,7 @@ from PIL import ImageFont, ImageDraw
 from util import *
 
 os.makedirs(os.path.abspath(f"{__file__}/../final"), exist_ok=True)
-MATCH_TYPE = "Room"
+MATCH_TYPE = "Ranked"
 
 
 def get_video_duration(file_path):
@@ -99,7 +99,7 @@ def create_video(file_path):
     final_path = os.path.abspath(
         f"{__file__}/../final/[GBVS] Granblue Fantasy Versus {MATCH_TYPE} Match {data['player1']['name']} ({data['player1']['character']}) vs {data['player2']['name']} ({data['player2']['character']})-{video_count}.mp4")
 
-    subprocess.call(f'ffmpeg -f concat -safe 0 -i \"{concat_path}\" -c copy \"{final_path}\"')
+    subprocess.call(f'ffmpeg -f concat -safe 0 -i \"{concat_path}\" -c copy -y \"{final_path}\"')
 
     with open(f"{__file__}/../final/temp/output.log", "a", encoding="utf-8") as f:
         f.write(f"[{convert(data['runtime'])}] {final_path}\n")
@@ -147,9 +147,30 @@ def create_thumbnail(file_path):
     cv2.imwrite(final_path, np.array(img_pil))
 
 
+def create_description(file_path):
+    with open(file_path) as f:
+        data = json.load(f)
+
+    with open(f"{__file__}/../images/playlists.json") as f:
+        playlists = json.load(f)
+
+    with open(f"{__file__}/../images/template_description.json") as f:
+        desc = f.read()
+
+    title = f"[GBVS] Granblue Fantasy Versus {MATCH_TYPE} Match {data['player1']['name']} ({data['player1']['character']}) vs {data['player2']['name']} ({data['player2']['character']})"
+
+    final_path = os.path.abspath(
+        f"{__file__}/../final/{title}-{video_count}.txt")
+
+    with open(final_path, "w") as f:
+        f.write(title + "\n\n" + desc.format(p1_char=data['player1']['character'], p1_playlist=playlists[data['player1']['character']], p2_char=data['player2']['character'],
+                                             p2_playlist=playlists[data['player2']['character']], match_playlist=playlists[MATCH_TYPE]))
+
+
 def run(file_path):
     create_video(file_path)
     create_thumbnail(file_path)
+    create_description(file_path)
 
 
 path = os.path.abspath(f"{__file__}/../compilation")

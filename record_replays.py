@@ -2,6 +2,9 @@ import time
 import obsws_python as obs
 from util import *
 import os
+from pathlib import Path
+
+replays_to_record = 15
 
 os.makedirs(os.path.abspath(f"{__file__}/../videos"), exist_ok=True)
 
@@ -11,21 +14,9 @@ ev_cl = obs.EventClient()
 replay_data = {}
 
 
-def sanitize_file_name(file_name):
-    # Remove characters that are not allowed in Windows file names
-    sanitized_name = re.sub(r'[<>:"/\\|?*\x00-\x1F]', '', file_name)
-    return sanitized_name
-
-
-def get_new_path(ext="mp4"):
-    global replay_data
-    if not replay_data:
-        raise RuntimeError("Replay data is empty")
-
+def get_new_path(data, ext="mp4"):
     path = os.path.abspath(
-        f"{__file__}/../videos/{replay_data['replay_number']:02d}--{sanitize_file_name(re.sub(r'--+', r'-', replay_data['player1']['name']))}--{replay_data['player1']['character']}--{sanitize_file_name(re.sub(r'--+', r'-', replay_data['player2']['name']))}--{replay_data['player2']['character']}.{ext}")
-    replay_data = {}
-
+        f"{__file__}/../videos/{data['replay_number']:02d}--{encode_name(data['player1']['name'])}--{data['player1']['character']}--{encode_name(data['player2']['name'])}--{data['player2']['character']}.{ext}")
     return path
 
 
@@ -33,8 +24,13 @@ def on_record_state_changed(data):
     if data.output_state != "OBS_WEBSOCKET_OUTPUT_STOPPED":
         return
 
+    global replay_data
+    if not replay_data:
+        raise RuntimeError("Replay data is empty")
+
     # Look at os.replace
-    os.rename(data.output_path, get_new_path(data.output_path.split(".")[-1]))
+    os.rename(data.output_path, get_new_path(replay_data, data.output_path.split(".")[-1]))
+    replay_data = {}
 
 
 ev_cl.callback.register(on_record_state_changed)
@@ -56,8 +52,6 @@ def replay_menu_screen():
 def hide_guide_overlay(p):
     return np.array_equal(p[984:1012, 1260:1286], images["hide_guide"])
 
-
-replays_to_record = 63
 
 for last_replay_num in range(1, replays_to_record + 1):
     while replay_data:
@@ -90,6 +84,13 @@ for last_replay_num in range(1, replays_to_record + 1):
 
     # Grabbing the data
     replay_data = get_replay_data(background_screenshot(hwnd))
+    print(f"Replay Data: {replay_data}")
+    temp = str(Path(get_new_path(replay_data)).name)
+    print(f"Replay Name: {temp}")
+    if temp in os.listdir(f"{__file__}/../videos"):
+        print("Video already created")
+        replay_data = {}
+        continue
 
     # Selection the data
     last_direction = "w"
@@ -141,7 +142,8 @@ for last_replay_num in range(1, replays_to_record + 1):
 
     while True:
         temp1 = background_screenshot(hwnd)
-        temp = get_fighter_ranks(temp1)
+        temp = get_fighter_characters(temp1, nth_replay=2)
+
         if temp[0] and temp[1]:
             break
 

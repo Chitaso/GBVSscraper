@@ -12,6 +12,10 @@ def is_frame_black(arr):
     return not (arr > 10).any()
 
 
+def is_frame_white(arr):
+    return (arr > 250).all()
+
+
 # TODO:
 #   - 12, 13 Ending Anim ->
 #   - 20 Ending Anim
@@ -95,8 +99,8 @@ def get_video_bounds(file_path):
                     print(start_frame)
 
         if start_frame != -1 and not end_frame_flag:
-            if is_frame_black(img):
-                if not black_frame_end_flag:
+            if is_frame_black(img) or is_frame_white(img):
+                if not black_frame_end_flag and fno - black_frame_end > 240:
                     black_frame_end_flag = True
                     black_frame_end = fno
             else:
@@ -168,6 +172,6 @@ path = os.path.abspath(f"{__file__}/../videos")
 blacklist = os.listdir(f"{__file__}/../trimmed_videos")
 
 for i in os.listdir(path):
-    if i not in blacklist or True:
+    if i not in blacklist:
         print(f"Trimming video: {i}")
         run(f"{path}/{i}")
