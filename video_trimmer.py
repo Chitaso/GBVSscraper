@@ -2,6 +2,7 @@ import os
 import cv2
 import ffmpeg
 import numpy as np
+import subprocess
 
 os.makedirs(os.path.abspath(f"{__file__}/../trimmed_videos"), exist_ok=True)
 os.makedirs(os.path.abspath(f"{__file__}/../ending_anim"), exist_ok=True)
@@ -175,3 +176,9 @@ for i in os.listdir(path):
     if i not in blacklist:
         print(f"Trimming video: {i}")
         run(f"{path}/{i}")
+
+# Fixes ending anim
+path = os.path.abspath(f"{__file__}/../ending_anim")
+for i in os.listdir(path):
+    subprocess.call(f"ffmpeg -err_detect ignore_err -i \"{path}/{i}\" -c copy \"{path}/test.mp4\"")
+    os.replace(f"{path}/test.mp4", f"{path}/{i}")
