@@ -4,7 +4,7 @@ from util import *
 import os
 from pathlib import Path
 
-replays_to_record = 15
+replays_to_record = 42
 
 os.makedirs(os.path.abspath(f"{__file__}/../videos"), exist_ok=True)
 

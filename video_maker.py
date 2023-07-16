@@ -83,10 +83,10 @@ def create_video(file_path):
 
         if i == 0:
             subprocess.call(
-                f'ffmpeg -i "{j[0]}" -loop 1 -t {get_video_duration(j[0])} -i "{overlay}" -filter_complex "[1:v]fade=in:st=0.5:d=0.33:alpha=1[i];[0:v][i]overlay=0:0" -c:a copy \"{clip_path}\"')
+                f'ffmpeg -hwaccel cuda -i "{j[0]}" -loop 1 -t {get_video_duration(j[0])} -i "{overlay}" -c:v h264_nvenc -filter_complex "[1:v]fade=in:st=0.5:d=0.33:alpha=1[i];[0:v][i]overlay=0:0" -c:a copy \"{clip_path}\"')
         else:
             subprocess.call(
-                f'ffmpeg -i "{j[0]}" -loop 1 -t {get_video_duration(j[0])} -i "{overlay}" -filter_complex "[0:v][1:v]overlay=0:0" -c:a copy \"{clip_path}\"')
+                f'ffmpeg -hwaccel cuda -i "{j[0]}" -loop 1 -t {get_video_duration(j[0])} -i "{overlay}" -c:v h264_nvenc -filter_complex "[0:v][1:v]overlay=0:0" -c:a copy \"{clip_path}\"')
 
     concat_path = f"{temp_path}/concat.txt"
 
@@ -151,10 +151,13 @@ def create_description(file_path):
     with open(file_path) as f:
         data = json.load(f)
 
+    if data["runtime"] < 270:
+        return
+
     with open(f"{__file__}/../images/playlists.json") as f:
         playlists = json.load(f)
 
-    with open(f"{__file__}/../images/template_description.json") as f:
+    with open(f"{__file__}/../images/template_description.txt") as f:
         desc = f.read()
 
     title = f"[GBVS] Granblue Fantasy Versus {MATCH_TYPE} Match {data['player1']['name']} ({data['player1']['character']}) vs {data['player2']['name']} ({data['player2']['character']})"
@@ -162,9 +165,9 @@ def create_description(file_path):
     final_path = os.path.abspath(
         f"{__file__}/../final/{title}-{video_count}.txt")
 
-    with open(final_path, "w") as f:
+    with open(final_path, "w", encoding="utf-8") as f:
         f.write(title + "\n\n" + desc.format(p1_char=data['player1']['character'], p1_playlist=playlists[data['player1']['character']], p2_char=data['player2']['character'],
-                                             p2_playlist=playlists[data['player2']['character']], match_playlist=playlists[MATCH_TYPE]))
+                                             p2_playlist=playlists[data['player2']['character']], match_type=MATCH_TYPE, match_playlist=playlists[MATCH_TYPE]))
 
 
 def run(file_path):
@@ -178,4 +181,4 @@ for i in os.listdir(path):
     print(f"Compiling video {i}")
     run(f"{path}/{i}")
 
-# create_thumbnail(f"{__file__}/../compilation/日本翼--Lancelot--son-o--Metera-1.json")
+# create_description(f"{__file__}/../compilation/roku--Belial--STREETu0020FIGHTERu00206--Ladiva-1.json")

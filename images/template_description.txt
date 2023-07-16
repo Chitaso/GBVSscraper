@@ -2,7 +2,7 @@ This clip was automatically recorded and created. Please be patient while I work
 
 {p1_char} playlist: {p1_playlist}
 {p2_char} playlist: {p2_playlist}
-Ranked Match Playlist: {match_playlist}
+{match_type} Match Playlist: {match_playlist}
 
 #GranblueFantasyVersus
 #GBVS

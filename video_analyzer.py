@@ -72,7 +72,7 @@ def analyze_video(file_path, file_name):
     winner = 2 - (get_wins(img)[0] == 2)
 
     new_path = file_path.replace("trimmed_videos", "analysis").rsplit(".", 1)[0] + ".json"
-    _, a, b, c, d = file_name.rsplit(".")[0].split("--")
+    _, a, b, c, d = file_name.rsplit(".", 1)[0].split("--")
 
     with open(new_path, "w") as f:
         json.dump({

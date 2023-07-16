@@ -1,12 +1,24 @@
 import os
 
 mappings = {
-    "速抱抱凱示希号": "请抱抱凯尔希吧",
-    "波藍鬼オ_老男人ver.": "波蓝鬼オu0020]老男人ver",
-    "夙同財云": "风间时云",
-    "囚囚囚囚に": "Percival",
-    "Son-o": "son-o",
-    "mizo_re": "mizo_re"
+    "iu0020BYu0020Fyu0020BRu0020LEu0020BRK": "我要成为英雄联盟高手",
+    "担美得到迦": "扣类得到达",
+    "提硯②③③": "提碳223",
+    "player1evl5uzwvw": "...",
+    "playerg2x7i9sg3w": "...",
+    "playerv4biq3yz8g": "...",
+    "供原禽肉配送": "优质离肉配送",
+    "IAYLEN": "JAYLEN",
+    "ICloudice": "JCloudice",
+    "playerlp8vuo6hmk": "我要成为英雄联盟高手",
+    "player9f313j2e7e": "我要成为英雄联盟高手",
+    "playervt76uwi1uh": "我要成为英雄联盟高手",
+    "LiGaMa": "LiSaMa",
+    "Promelhens": "Prometheus",
+    "川口": "llllIIII",
+    "AYIYAPC": "カンニングPC",
+    "Ibn": "Dom",
+    "砂巻刃死不放必細": "刀砍卷刃死不放必杀"
 }
 
 path = os.path.abspath(f"{__file__}/../videos")

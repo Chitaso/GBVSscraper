@@ -10,7 +10,7 @@ os.makedirs(os.path.abspath(f"{__file__}/../thumbnails_temp"), exist_ok=True)
 
 
 def is_frame_black(arr):
-    return not (arr > 10).any()
+    return not (arr[0:840, :] > 10).any()
 
 
 def is_frame_white(arr):
@@ -18,8 +18,7 @@ def is_frame_white(arr):
 
 
 # TODO:
-#   - 12, 13 Ending Anim ->
-#   - 20 Ending Anim
+#   Make this multithreaded
 
 def get_video_bounds(file_path):
     cap = cv2.VideoCapture(file_path)
@@ -145,7 +144,7 @@ def trim_video(file_path, bounds):
         if j == 1:
             kwargs["filter_complex"] = "[0:a]volume=enable='lt(t,0.25)':volume=0"
 
-        ffmpeg.input(file_path, ss=start_time, to=end_time, **kwargs).output(output_path).run(overwrite_output=True)
+        subprocess.call(f"ffmpeg -ss {start_time} -to {end_time} -i \"{file_path}\" -c:v h264_nvenc -y \"{output_path}\"")
 
 
 def extract_thumbnail(file_path, thumbnail_frame):
@@ -173,7 +172,7 @@ path = os.path.abspath(f"{__file__}/../videos")
 blacklist = os.listdir(f"{__file__}/../trimmed_videos")
 
 for i in os.listdir(path):
-    if i not in blacklist:
+    if i not in blacklist or True:
         print(f"Trimming video: {i}")
         run(f"{path}/{i}")
 
@@ -182,3 +181,20 @@ path = os.path.abspath(f"{__file__}/../ending_anim")
 for i in os.listdir(path):
     subprocess.call(f"ffmpeg -err_detect ignore_err -i \"{path}/{i}\" -c copy \"{path}/test.mp4\"")
     os.replace(f"{path}/test.mp4", f"{path}/{i}")
+
+# Fixes file names
+if os.path.exists(f"{__file__}/../thumbnails_temp"):
+    path = os.path.abspath(f"{__file__}/../videos")
+
+    temp = {i.split("--")[0]: i[:-4] for i in os.listdir(path)}
+    path1 = os.path.abspath(f"{__file__}/../thumbnails_temp")
+    for i in os.listdir(path1):
+        os.rename(f"{path1}/{i}", f"{path1}/{temp[i.split('--')[0]]}.png")
+
+    path1 = os.path.abspath(f"{__file__}/../ending_anim")
+    for i in os.listdir(path1):
+        os.rename(f"{path1}/{i}", f"{path1}/{temp[i.split('--')[0]]}.mp4")
+
+    path1 = os.path.abspath(f"{__file__}/../trimmed_videos")
+    for i in os.listdir(path1):
+        os.rename(f"{path1}/{i}", f"{path1}/{temp[i.split('--')[0]]}.mp4")
