@@ -1,3 +1,11 @@
+# GBVS Scraper
+
+This project is being discontinued.
+
+I initially created these scripts in order to create youtube videos of the game `Granblue Fantasy Versus` by scraping the top replays list for top level replays to show to the public. With the new installment `Granblue Fantasy Versus Rising` and varioius other personal factors, I feel that this project has run its due course and so I have discontinued it.
+
+---
+
 This was made for my personal use so a lot of things are hardcoded in & assumed (i.e. 1920 x 1080, OBS setup correctly, etc)
 
 ---
